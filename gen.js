@@ -147,6 +147,44 @@
     ["燕鎚起銅器", "鎚（つち）で打ち起こして形を作る銅器"],
     ["山形鋳物", "茶道に欠かせない茶の湯釜の多くが、ここで作られる"],
   ];
+  // 2026-11-08 から足した特徴の文（青山スクエアの品目ページ。前の日の問題を変えないよう v:2 にして、V2DAY より前の日には出さない）
+  const FEATS2 = [
+    ["村山大島紬", "紺絣と太織の2つが合わさって生まれた絹織物"],
+    ["置賜紬", "6つの品種をまとめた呼び名で、どれも先染めの平織"],
+    ["桐生織", "宮中に仕えた姫が村に来て、養蚕と機織りを伝えたのが始まり"],
+    ["博多織", "「献上」に代表される平織と、繊細緻密な柄の紋織"],
+    ["久留米絣", "12歳の少女が、古い木綿布のかすれた糸をヒントに始めた"],
+    ["弓浜絣", "農民の自家用に始まり、縁起物や厄除けの絵柄を織り出す"],
+    ["久米島紬", "地色が渋く、帯を変えれば親子2代3代でも着られる"],
+  ];
+  // 豆知識（正解のあとに出す。青山スクエアの品目ページから。40字以内）
+  const MAME = {
+    西陣織: "応仁の乱で西軍が本陣を置いた地に職人が集まったのが名の始まり",
+    本場黄八丈: "すべて島に自生する植物の天然染料で糸を染める",
+    村山大島紬: "絣板に組んだ糸をボルトで締め、染料をかけて絣染めする",
+    小千谷縮: "緯糸に強い撚りをかけ、涼しさを出すシボというしわを作る",
+    置賜紬: "江戸時代の初め、領主の上杉景勝が奨励して産地の体制が整った",
+    桐生織: "品種が多く少量生産の、付加価値の高い先染めジャカード織物",
+    博多織: "鎌倉時代、商人が僧と宋へ渡り、織物の技を持ち帰ったのが始まり",
+    久留米絣: "糸を括って染めた絣糸で、柄を手で合わせながら織り上げる",
+    弓浜絣: "19世紀初め、浜の目絣という絵絣を農家の女性たちが織り始めた",
+    久米島紬: "日本の紬の発祥の地と言われ、天然の染料を使い手織りで作る",
+    宮古上布: "糸の原料は苧麻（宮古の言葉でブー）。手で績んだ糸を藍染めして織る",
+    喜如嘉の芭蕉布: "江戸時代には夏の裃として人気があり、今も盛夏の着物に使われる",
+    加賀友禅: "江戸時代中期、宮崎友禅斉が絵画調の模様染めを指導して確立した",
+    "有松・鳴海絞": "江戸時代の初めごろに始まり、縫絞・くも絞・雪花絞などがある",
+    琉球びんがた: "色鮮やかな「紅型」と、琉球藍で浸し染めする「藍型」とがある",
+    九谷焼: "緑・黄・赤・紫・紺青の五彩の和絵具で、重厚に輝く上絵を描く",
+    常滑焼: "原型は平安時代末期までさかのぼり、日本六古窯のひとつに数えられる",
+    四日市萬古焼: "作品が永遠に伝わるよう「萬古不易」の印を押したのが名の由来",
+    信楽焼: "聖武天皇が紫香楽宮を造るとき、瓦を焼いたのが始まりといわれる",
+    備前焼: "釉薬を使わず、絵付けもしないで焼き上げる",
+    萩焼: "水を吸いやすく、使ううちに茶や酒がしみて茶碗の色が変わる",
+  };
+  // 豆知識から品目を当てる問題に使う品目（ほかの品目にも当てはまりそうな豆知識・品目名が入る豆知識は使わない。
+  // 例：常滑焼の「六古窯」は信楽焼・備前焼などにも当てはまる。加賀友禅の宮崎友禅斉は京友禅にも当てはまる）
+  const MAMEQ = ["西陣織", "置賜紬", "博多織", "弓浜絣", "久米島紬", "九谷焼", "萩焼", "信楽焼"];
+  const V2DAY = "2026-11-08";
   // 都道府県ごとの指定品目の数（経済産業省の一覧。2つの県にまたがる品目は両方の県に数える）。並びは全国地方公共団体コードの順（北から）
   const PREFS = [
     ["北海道", 2],
@@ -233,10 +271,13 @@
   ITEMS.forEach((x, i) => { const R = rng(seedOf("gen:yomi:" + i)), pool = ITEMS.filter((y) => y !== x && y.c === x.c), ds = pickN(R, pool.length >= 3 ? pool : ITEMS.filter((y) => y !== x), 3);
     add("yomi", String(i), { scene: Q(`「${x.n}」の読み方は？`), opts: [x.y, ...ds.map((d) => d.y)], ans: x.y, at: at(x), src: S(x), why: `${x.n}は「${x.y}」と読みます。${x.p}の${x.c}です。` }); });
   // 特徴 → 品目（まちがいの選び肢は別の種類から。組をかえて2問）
-  FEATS.forEach(([n, t], i) => { const x = ITEMS.find((y) => y.n === n); for (let v = 0; v < 2; v++) { const R = rng(seedOf(`gen:tokucho:${i}:${v}`)), ds = pickN(R, ITEMS.filter((y) => y.c !== x.c), 3);
-    add("tokucho", `${i}-${v}`, { scene: Q(`「${t}」。この伝統的工芸品は？`), opts: [x.n, ...ds.map((d) => d.n)], ans: x.n, at: at(x), src: S(x), why: `${x.n}（${x.p}の${x.c}）です。` }); } });
+  FEATS.concat(FEATS2).forEach(([n, t], i) => { const x = ITEMS.find((y) => y.n === n); for (let v = 0; v < 2; v++) { const R = rng(seedOf(`gen:tokucho:${i}:${v}`)), ds = pickN(R, ITEMS.filter((y) => y.c !== x.c), 3);
+    add("tokucho", `${i}-${v}`, { scene: Q(`「${t}」。この伝統的工芸品は？`), opts: [x.n, ...ds.map((d) => d.n)], ans: x.n, at: at(x), src: S(x), why: `${x.n}（${x.p}の${x.c}）です。`, ...(i >= FEATS.length ? { v: 2 } : {}) }); } });
 
   // ── ふつう ──
+  // 豆知識 → 品目（まちがいの選び肢は同じ種類から。組をかえて3問。2026-11-08 から）
+  MAMEQ.forEach((n, i) => { const x = ITEMS.find((y) => y.n === n); for (let v = 0; v < 3; v++) { const R = rng(seedOf(`gen:mame:${i}:${v}`)), ds = pickN(R, ITEMS.filter((y) => y !== x && y.c === x.c), 3);
+    add("mame", `${i}-${v}`, { scene: Q(`「${MAME[n]}」。この伝統的工芸品は？`), opts: [x.n, ...ds.map((d) => d.n)], ans: x.n, at: at(x), src: S(x), why: `${x.n}（${x.y}）は${x.p}の${x.c}です。`, v: 2, nomame: 1 }); } });
   // 品目 → 都道府県（名前でわかる品目は出さない）
   nl.forEach((x) => { const i = ITEMS.indexOf(x), R = rng(seedOf("gen:ken:" + i)), ds = pickN(R, PN.filter((p) => p !== x.p), 3);
     add("ken", String(i), { scene: Q(`「${x.n}」は、どの都道府県の伝統的工芸品？`), opts: [x.p, ...ds], ans: x.p, at: at(x), src: [itemSrc(x), "list"], why: `${x.n}（${x.y}）は${x.p}の${x.c}です。` }); });
@@ -281,6 +322,7 @@
     { id: "tokucho", lv: 0, name: "特徴から品目", look: "材料（麻・漆・土・木の皮など）と、作り方の言葉を見ましょう。" },
     { id: "ken", lv: 1, name: "どの都道府県", look: "名前に入っている地名や、昔の国の名前を手がかりにしましょう。" },
     { id: "kenhin", lv: 1, name: "都道府県から品目", look: "その都道府県の町や、昔の国の名前が入った品目を探しましょう。" },
+    { id: "mame", lv: 1, v: 2, name: "豆知識から品目", look: "始まりの話（時代・人）や、色・使い道の言葉を手がかりにしましょう。" },
     { id: "kanji", lv: 1, name: "書き方", look: "読みを地名と、焼・塗・織などの字に分けてみましょう。" },
     { id: "onaji", lv: 1, name: "同じ都道府県", look: "まず、はじめの品目がどの都道府県かを考えましょう。" },
     { id: "kinjo", lv: 2, name: "近くの県から", look: "昔の国の名前（加賀・越前・備前など）が今のどの県かを考えましょう。" },
@@ -291,25 +333,27 @@
   B.forEach((q) => { q.lv = KINDS.find((k) => k.id === q.kind).lv; });
   const BY = Object.fromEntries(KINDS.map((k) => [k.id, k]));
   const kindsOf = (lv) => KINDS.filter((k) => k.lv === lv).map((k) => k.id);
+  // その日に出してよい種類・問題（V2DAY より前の日は、足す前と同じ組み方にする）
+  const kindsOn = (lv, date) => KINDS.filter((k) => k.lv === lv && (!k.v || date >= V2DAY)).map((k) => k.id);
   const BANK = Object.fromEntries(B.map((q) => [q.key, q]));
   const keysOf = (kind) => B.filter((q) => q.kind === kind).map((q) => q.key);
   // key から問題を作る（選び肢の並びは key の種で混ぜる。並びを決めてある種類はそのまま）
   function make(tag) {
     if (!Object.prototype.hasOwnProperty.call(BANK, tag)) return null; const q = BANK[tag];
     const k = BY[q.kind], opts = q.fix ? q.opts.slice() : pickN(rng(seedOf(tag)), q.opts, q.opts.length);
-    return { tag, kind: q.kind, lv: k.lv, name: k.name, look: k.look, scene: q.scene, text: q.text || "", opts, ans: q.ans, why: q.why, at: q.at, src: q.src.map((s) => (Array.isArray(s) ? s : SRC[s])) };
+    return { tag, kind: q.kind, lv: k.lv, name: k.name, look: k.look, scene: q.scene, text: q.text || "", opts, ans: q.ans, why: q.why, mame: (!q.nomame && q.at && q.at.length === 1 && MAME[ITEMS[q.at[0]].n]) || "", at: q.at, src: q.src.map((s) => (Array.isArray(s) ? s : SRC[s])) };
   }
-  const pickKey = (R, kind) => { const ks = keysOf(kind); return ks[Math.floor(R() * ks.length)]; };
+  const pickKey = (R, kind, date) => { const ks = B.filter((q) => q.kind === kind && (!q.v || date >= V2DAY)).map((q) => q.key); return ks[Math.floor(R() * ks.length)]; };
   // 今日の5問：やさしい2・ふつう2・むずかしい1（種類は重ねない）。日付の種で決まり、だれでも同じ
   function dailyTags(date) {
-    const R = rng(seedOf("day:" + date)), e = pickN(R, kindsOf(0), 2), m = pickN(R, kindsOf(1), 2), h = pickN(R, kindsOf(2), 1);
-    return [...e, ...m, ...h].map((k) => pickKey(R, k));
+    const R = rng(seedOf("day:" + date)), e = pickN(R, kindsOn(0, date), 2), m = pickN(R, kindsOn(1, date), 2), h = pickN(R, kindsOn(2, date), 1);
+    return [...e, ...m, ...h].map((k) => pickKey(R, k, date));
   }
   // 上級：むずかしい3問（今日のむずかしいと別の種類）
   function hardTags(date) {
-    const dh = BANK[dailyTags(date)[4]].kind, R = rng(seedOf("hard:" + date)), h = pickN(R, kindsOf(2).filter((x) => x !== dh), 3);
-    return h.map((k) => pickKey(R, k));
+    const dh = BANK[dailyTags(date)[4]].kind, R = rng(seedOf("hard:" + date)), h = pickN(R, kindsOn(2, date).filter((x) => x !== dh), 3);
+    return h.map((k) => pickKey(R, k, date));
   }
-  const G = { KINDS, BY, LV, SRC, ITEMS, FEATS, PREFS, CATS, leaks, BANK, keysOf, kindsOf, seedOf, rng, make, dailyTags, hardTags, pickN };
+  const G = { KINDS, BY, LV, SRC, ITEMS, FEATS, FEATS2, MAME, MAMEQ, V2DAY, kindsOn, PREFS, CATS, leaks, BANK, keysOf, kindsOf, seedOf, rng, make, dailyTags, hardTags, pickN };
   if (typeof module === "object" && module.exports) module.exports = G; else root.DENTO = G;
 })(typeof window !== "undefined" ? window : globalThis);

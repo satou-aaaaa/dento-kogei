@@ -29,7 +29,9 @@ const T = Object.fromEntries(IT.map(([n, y, p, c]) => [n, { n, y, p, c }]));
 const BYY = Object.fromEntries(IT.map(([n, y]) => [y, n]));
 const CATS13 = ["織物", "染色品", "その他繊維製品", "陶磁器", "漆器", "木工品・竹工品", "金工品", "和紙", "文具", "人形・こけし", "仏壇・仏具", "石工品", "貴石細工"];
 // 特徴の文の始まり → 答え（品目ページの説明から）
-const FEAT = [["多くの品種を少しずつ", "西陣織"], ["黄・茶・黒の3色", "本場黄八丈"], ["苧麻（麻）の繊維", "小千谷縮"], ["糸芭蕉からとれる", "喜如嘉の芭蕉布"], ["細い麻糸と精緻な絣", "宮古上布"], ["落ち着いた写実的な草", "加賀友禅"], ["木綿絞の代表産地", "有松・鳴海絞"], ["型紙や京友禅の手法", "琉球びんがた"], ["多色の絵を描く上絵付", "九谷焼"], ["いちばんの特徴は窯変", "備前焼"], ["焼き締まりの少ない柔", "萩焼"], ["磁器の産地の中で「純", "出石焼"], ["急須が親しまれ", "四日市萬古焼"], ["原料にふくまれる鉄分", "常滑焼"], ["陶土の特性を生かした", "信楽焼"], ["壊れやすい所に布を貼", "輪島塗"], ["大胆な彫りに、マコモ", "鎌倉彫"], ["ヤマザクラの木の皮", "樺細工"], ["鎚（つち）で打ち起こ", "燕鎚起銅器"], ["茶道に欠かせない茶の", "山形鋳物"]];
+const FEAT = [["紺絣と太織", "村山大島紬"], ["6つの品種をまとめた", "置賜紬"], ["宮中に仕えた姫", "桐生織"], ["「献上」に代表", "博多織"], ["12歳の少女", "久留米絣"], ["農民の自家用", "弓浜絣"], ["地色が渋く", "久米島紬"], ["多くの品種を少しずつ", "西陣織"], ["黄・茶・黒の3色", "本場黄八丈"], ["苧麻（麻）の繊維", "小千谷縮"], ["糸芭蕉からとれる", "喜如嘉の芭蕉布"], ["細い麻糸と精緻な絣", "宮古上布"], ["落ち着いた写実的な草", "加賀友禅"], ["木綿絞の代表産地", "有松・鳴海絞"], ["型紙や京友禅の手法", "琉球びんがた"], ["多色の絵を描く上絵付", "九谷焼"], ["いちばんの特徴は窯変", "備前焼"], ["焼き締まりの少ない柔", "萩焼"], ["磁器の産地の中で「純", "出石焼"], ["急須が親しまれ", "四日市萬古焼"], ["原料にふくまれる鉄分", "常滑焼"], ["陶土の特性を生かした", "信楽焼"], ["壊れやすい所に布を貼", "輪島塗"], ["大胆な彫りに、マコモ", "鎌倉彫"], ["ヤマザクラの木の皮", "樺細工"], ["鎚（つち）で打ち起こ", "燕鎚起銅器"], ["茶道に欠かせない茶の", "山形鋳物"]];
+// 豆知識の文の始まり → 答え（品目ページの説明から。dento-kogei-more.md）
+const MQ = [["応仁の乱で西軍", "西陣織"], ["江戸時代の初め、領主の上杉景勝", "置賜紬"], ["鎌倉時代、商人が僧と宋へ", "博多織"], ["19世紀初め、浜の目絣", "弓浜絣"], ["日本の紬の発祥の地", "久米島紬"], ["緑・黄・赤・紫・紺青の五彩", "九谷焼"], ["水を吸いやすく、使ううちに茶や酒", "萩焼"], ["聖武天皇が紫香楽宮", "信楽焼"]];
 const quoted = (t) => (t.match(/「(.+)」/) || [])[1] || "";
 const shortP = (p) => (p === "北海道" ? p : p.replace(/[都府県]$/, ""));
 const LEAKW = { 京: "京都府", 江戸: "東京都", 琉球: "沖縄県", 名古屋: "愛知県", 博多: "福岡県" };
@@ -44,7 +46,7 @@ const FIRST_DAY = '[["tokucho|0-1","shurui|12","ken|70","kanji|7","narabe|24"],[
   check("表：都道府県ごとの数は47で、足すと252（2つの県にまたがる5品目を引くと247。経済産業省 2026-10-22）", PJ.length === 47 && Object.values(CNT).reduce((a, b) => a + b, 0) === 252 && new Set(PJ).size === 47);
   check("表：gen.js の品目100が、別に持った表と名前・読み・都道府県・種類まで同じ（名前と読みはみなちがう）", G.ITEMS.length === IT.length && G.ITEMS.every((x, i) => JSON.stringify([x.n, x.y, x.p, x.c]) === JSON.stringify(IT[i])) && new Set(IT.map((x) => x[1])).size === IT.length && new Set(IT.map((x) => x[0])).size === IT.length && IT.every((x) => CATS13.includes(x[3]) && CNT[x[2]] > 0), G.ITEMS.filter((x, i) => JSON.stringify([x.n, x.y, x.p, x.c]) !== JSON.stringify(IT[i])).map((x) => x.n).join(","));
   check("表：gen.js の都道府県の数が、経済産業省の一覧と同じ（全国地方公共団体コードの順）", JSON.stringify(G.PREFS) === JSON.stringify(PJ.map((p) => [p, CNT[p]])));
-  check("表：特徴の文は20で、どれも別に持った表の答えと合い、文に都道府県の名前を入れない", G.FEATS.length === FEAT.length && G.FEATS.every(([n, t]) => { const f = FEAT.find(([k]) => t.startsWith(k)); return f && f[1] === n && !PJ.some((p) => t.includes(shortP(p))); }));
+  check("表：特徴の文は27（はじめの20＋2026-11-08 の7）で、どれも別に持った表の答えと合い、文に都道府県の名前を入れない", G.FEATS.length + G.FEATS2.length === FEAT.length && G.FEATS.concat(G.FEATS2).every(([n, t]) => { const f = FEAT.find(([k]) => t.startsWith(k)); return f && f[1] === n && !PJ.some((p) => t.includes(shortP(p))); }));
   for (const q of all) {
     const P = G.make(q.key), why = [];
     if (!P) { bad.push(q.key + " 作れない"); continue; }
@@ -61,6 +63,8 @@ const FIRST_DAY = '[["tokucho|0-1","shurui|12","ken|70","kanji|7","narabe|24"],[
     if (k === "shurui") { const c = (t.match(/「(.+)」の伝統/) || [])[1]; if (!CATS13.includes(c) || !P.opts.every(isI) || !one((o) => T[o].c === c)) why.push("種類から品目の答え"); }
     if (k === "yomi") { if (!s || P.ans !== s.y || !P.opts.every((o) => BYY[o])) why.push("読みの答え"); }
     if (k === "tokucho") { const f = FEAT.find(([x]) => quoted(t).startsWith(x)); if (!f || P.ans !== f[1] || !P.opts.every(isI) || P.opts.some((o) => o !== f[1] && T[o].c === T[f[1]].c)) why.push("特徴の答え"); }
+    if (k === "mame") { const f = MQ.find(([x]) => quoted(t).startsWith(x)); if (!f || P.ans !== f[1] || !P.opts.every(isI) || P.opts.some((o) => T[o].c !== T[f[1]].c) || P.mame || PJ.some((p) => quoted(t).includes(shortP(p))) || [...f[1]].some((c, i, a) => i && quoted(t).includes(a[i - 1] + c))) why.push("豆知識の答え"); }
+    if (P.mame !== "" && (typeof P.mame !== "string" || [...P.mame].length > 40 || P.mame !== G.MAME[G.ITEMS[P.at[0]].n])) why.push("豆知識");
     if (k === "ken" || k === "kinjo") { const j = s && PJ.indexOf(s.p); if (!s || leakQ(s) || P.ans !== s.p || !P.opts.every(isP) || (k === "kinjo" && P.opts.some((o) => Math.abs(PJ.indexOf(o) - j) > 5))) why.push("都道府県の答え"); }
     if (k === "kenhin") { const p = (t.match(/次のうち、(.+)の伝統的/) || [])[1]; if (!isP(p) || !P.opts.every((o) => isI(o) && !leakQ(T[o])) || !one((o) => T[o].p === p)) why.push("都道府県から品目の答え"); }
     if (k === "kanji") { const y = (t.match(/「(.+)」と読む/) || [])[1]; if (P.ans !== BYY[y] || !P.opts.every(isI)) why.push("書き方の答え"); }
@@ -80,7 +84,7 @@ const FIRST_DAY = '[["tokucho|0-1","shurui|12","ken|70","kanji|7","narabe|24"],[
   check("問題：とことん・練習で出る問題は300問以上（好きなだけ遊んでも、すぐに同じ問題にならない）", all.length >= 300, all.length);
   const per = G.KINDS.map((k) => [k.id, G.keysOf(k.id).length]).filter(([, n]) => n < 20);
   check("問題：どの種類も20問以上ある", per.length === 0, per.join(" "));
-  check("問題：種類は12（やさしい4・ふつう4・むずかしい4）", G.KINDS.length === 12 && [0, 1, 2].map((l) => G.kindsOf(l).length).join() === "4,4,4", [0, 1, 2].map((l) => G.kindsOf(l).length).join());
+  check("問題：種類は13（やさしい4・ふつう5・むずかしい4。豆知識から品目は 2026-11-08 から）", G.KINDS.length === 13 && [0, 1, 2].map((l) => G.kindsOf(l).length).join() === "4,5,4", [0, 1, 2].map((l) => G.kindsOf(l).length).join());
   check("知らない key（constructor など）は問題にしない", G.make("constructor") === null && G.make("__proto__") === null && G.make("toString") === null);
   const longLook = G.KINDS.filter((k) => [...k.look].length > 45).map((k) => k.id);
   check("ヒントは45字以内（やさしい日本語。一文を短く）", !longLook.length, longLook.join(","));
@@ -105,7 +109,15 @@ const FIRST_DAY = '[["tokucho|0-1","shurui|12","ken|70","kanji|7","narabe|24"],[
     if (i < 60) [...dk, ...hk].forEach((k) => cover.add(k));
   }
   check("今日の5問（やさしい2・ふつう2・むずかしい1、種類は重ねない）と上級（むずかしい3・今日のむずかしいと別）を3年分作れる", bad.length === 0, bad.slice(0, 5).join(","));
-  check("2か月のうちに12種類が全部出る・前の日と同じ5問の日が無い", cover.size === 12 && sameAsPrev === 0, `${cover.size}種類・前の日と同じ ${sameAsPrev}日`);
+  check("2か月のうちに13種類が全部出る・前の日と同じ5問の日が無い", cover.size === 13 && sameAsPrev === 0, `${cover.size}種類・前の日と同じ ${sameAsPrev}日`);
+  { // 足した問題（v:2）は V2DAY より前の日に出さず、その日からは出る
+    let early = 0, late = 0;
+    for (let i = -400; i < 400; i++) { const d = new Date(Date.parse(G.V2DAY) + i * 864e5).toISOString().slice(0, 10), ts = [...G.dailyTags(d), ...G.hardTags(d)];
+      const n = ts.filter((t) => G.BANK[t].v === 2).length; if (i < 0) early += n; else late += n; }
+    check("足した問題（豆知識から品目・特徴の7品目）は 2026-11-08 より前の日には出ず、その日からは出る", early === 0 && late > 20, `前 ${early}・後 ${late}`);
+    const withM = Object.values(G.BANK).filter((q) => G.make(q.key).mame).length;
+    check("正解のあとの豆知識が、21品目の問題に出る（40字以内・答えの品目のもの）", Object.keys(G.MAME).length === 21 && withM >= 120, `${withM}問`);
+  }
   // 過去の日の問題を変えない：はじめの日の5問を控えと比べる（gen.js・BANK を変えたら、ここが落ちる）
   check("過去の日の問題が変わらない（第1回 2026-11-07 の5問と上級）", JSON.stringify([G.dailyTags("2026-11-07"), G.hardTags("2026-11-07")]) === FIRST_DAY, JSON.stringify([G.dailyTags("2026-11-07"), G.hardTags("2026-11-07")]));
 }
@@ -387,6 +399,21 @@ try {
       await q.locator(".ch", { hasText: ans }).first().click(); await q.waitForTimeout(100);
       const cd = await q.evaluate(() => { const cs = [...document.querySelectorAll("#scene .card")]; return { n: cs.length, txt: cs.map((c) => c.textContent), w: Math.max(0, ...cs.map((c) => c.getBoundingClientRect().right)), sw: document.documentElement.scrollWidth }; });
       check("正解すると、問題と答えの品目の札が出る（同じ都道府県の問題は2枚。読み・都道府県・種類。幅320pxではみ出さない）", cd.n === 2 && cd.txt.some((t) => t.includes("弓浜絣（ゆみはまがすり）") && t.includes("鳥取県・織物")) && cd.txt.some((t) => t.includes("因州和紙（いんしゅうわし）") && t.includes("鳥取県・和紙")) && cd.w <= 320 && cd.sw <= 320, JSON.stringify(cd).slice(0, 300));
+      await q.context().close();
+    }
+    // 正解すると、答えの品目の豆知識が出る（豆知識から当てる問題では、同じ文を2回出さない）
+    {
+      const q = await newPage(); await closeHow(q); await q.click("#go-e"); await q.waitForTimeout(150);
+      const seen = [];
+      for (const tag of ["tokucho|0-0", "mame|0-0"]) {
+        await q.evaluate((t) => { __km.save((x) => { x.runs.e.list[x.runs.e.res.length] = t; }); __km.play(); }, tag);
+        await q.waitForTimeout(150);
+        const i = await q.evaluate(() => __km.cur().P.opts.indexOf(__km.cur().P.ans));
+        await q.locator(".ch").nth(i).click(); await q.waitForTimeout(100);
+        seen.push(await q.locator(".verdict .why.mame").count() ? await q.textContent(".verdict .why.mame") : "");
+        await q.click("#next"); await q.waitForTimeout(150);
+      }
+      check("正解すると「豆知識：」が出る（西陣織＝応仁の乱）。豆知識から当てる問題では出さない", /豆知識：応仁の乱/.test(seen[0]) && seen[1] === "", seen.join(" / "));
       await q.context().close();
     }
     check("幅320px・とても大きい文字でも横にはみ出さない", bad.length === 0, bad.join(" / "));
