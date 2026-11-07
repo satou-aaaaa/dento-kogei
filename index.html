@@ -67,7 +67,7 @@ button.sub:disabled,button.main:disabled{opacity:.45;cursor:default}
 .logo{display:flex;justify-content:center;gap:6px;font-size:2rem;margin-top:4px}
 .q{margin:0;font-weight:900;font-size:1.05rem;text-align:center;line-height:1.5}
 .scene{display:flex;justify-content:center}
-.src{margin:0;font-size:.8rem;line-height:1.4;color:var(--ink2);text-align:left;display:flex;flex-direction:column}.src a{color:var(--ai2);display:flex;align-items:center;min-height:44px}
+.src{margin:0;font-size:.8rem;line-height:1.4;color:var(--ink2);text-align:left;display:flex;flex-direction:column}.src a{color:var(--ai2);display:flex;align-items:center;min-height:48px}
 .tip{background:var(--paper);border:2px dashed var(--gold);border-radius:14px;padding:.6rem .9rem;font-size:.9rem;line-height:1.7;text-align:left}
 .tip b{color:var(--shu2)}
 /* 選び肢 */
@@ -532,7 +532,7 @@ function home() {
   const rd = s.runs.d && s.runs.d.date === k ? s.runs.d : null, rh = s.runs.h && s.runs.h.date === k ? s.runs.h : null, re = s.runs.e || null;
   const st = streak(s.days);
   app.innerHTML = `
-    <div class="logo" aria-hidden="true"><span>⚗️</span><span>🔬</span><span>💡</span><span>🪙</span></div>
+    <div class="logo" aria-hidden="true"><span>🏺</span><span>🍶</span><span>🧶</span><span>🎎</span></div>
     <h1 class="title">伝統工芸品<span>あて</span></h1>
     <p class="lead" data-a11y-say>焼き物？漆器？どこの県？<br>伝統的工芸品を当てる1日5問。</p>
     <div class="fsrow" role="group" aria-label="文字の大きさ">文字<button data-fs="1" aria-pressed="${fs === 1}" aria-label="文字 ふつう">あ</button><button data-fs="2" aria-pressed="${fs === 2}" aria-label="文字 大きい" style="font-size:1.15em">あ</button><button data-fs="3" aria-pressed="${fs === 3}" aria-label="文字 とても大きい" style="font-size:1.3em">あ</button></div>
